@@ -1,0 +1,98 @@
+#consoleInputArea, #consoleContainer {
+    font-family: monospace;
+    font-size: 16px;
+    background: black;
+    color: #ffffff;
+}
+#consoleInputArea {
+    overflow: hidden;
+    white-space: nowrap;
+}
+#consoleInputArea * {
+    display: inline-block;
+}
+#consoleInputArea span {
+    padding-left: 3px;
+}
+#cursor {
+    width: 8px;
+    height: 4px;
+    background: #ffffff;
+    transform: translate(-110%, 100%);
+    visibility: hidden;
+}
+#consoleInput {
+    width: 0;
+    height: 0;
+    opacity: 0;
+}
+
+#console {
+    flex-shrink: 0;
+    width: 450px;
+    height: 554px;
+    margin-left: -79px;
+    margin-top: 1px;
+
+    z-index: 10000;
+}
+#consoleContainer > * {
+    margin-left: 6px;
+    margin-top: 6px;
+}
+
+#consoleContainer {
+    width: 0px;
+    border: 1px solid gray;
+    outline: 5px solid rgba(0,104,173, 0.5); 
+    outline-offset: -5px;
+    user-select: none;
+    overflow-y: scroll;
+}
+
+.close {
+    outline: 3.5px solid rgba(4, 0, 255, 0.5);
+    outline-offset: -1px;
+}
+
+.resizer {
+    user-select: none; /* supported by Chrome and Opera */
+   -webkit-user-select: none; /* Safari */
+
+    background-color: rgb(33, 46, 68);
+    cursor: col-resize;
+    height: 100%;
+    width: 15px;
+    border: 0;
+    color: rgb(187, 187, 187);
+}
+.resizer:hover {
+    color: white;
+}
+#bar {
+    font-size: 32px;
+    height: 100%;
+    transform: translateY(45%);
+}
+
+
+.wiggle {
+    animation: shake 2s infinite ease-in-out;
+}
+@keyframes shake {
+  2.5%, 22.5% {
+    transform: translate3d(0, 44.5%, 0);
+  }
+  
+  5%, 20% {
+    transform: translate3d(0, 45.5%, 0);
+  }
+
+  7.5%, 12.5%, 17.5% {
+    transform: translate3d(0, 44%, 0);
+  }
+
+  10%, 15% {
+    transform: translate3d(0, 46%, 0);
+  }
+}

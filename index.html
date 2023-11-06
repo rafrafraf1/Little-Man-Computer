@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Little Man Computer by Rafi</title>
+    <link href="css/style.css" rel="stylesheet" type="text/css" />
+    <link href="css/buttons.css" rel="stylesheet" type="text/css" />
+    <link href="css/console.css" rel="stylesheet" type="text/css" />
+    <link href="css/editor.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body onload='scale(); makeRam()'>
+      <div style='display: flex; margin-left: 10px;'>
+        <div id='container'>
+            <!-- left section of LMC -->
+            <div id='leftDiv' style='position: relative; z-index: 1'>
+                <h3 style='color: #f9f9f9; margin-left: 20px; font-family: "Comic Sans MS", sans-serif;'>ASSEMBLY LANGUAGE CODE</h3>
+
+                <!-- control buttons -->
+                <div id='btnsBackground' style='display: flex; height: 40px; background-color: rgb(12, 12, 73); margin-bottom: 2px; font-family: "Comic Sans MS", sans-serif;'>
+                    <div id='compileBtn' class="box1" style='margin-left: 15px;' onclick=''>
+                        <div style='transform: translate(0, 27%); user-select: none'>ASSEMBLE</div>
+                    </div>
+                    
+                    <div  id='runBtn' onclick='' class="box">
+                        <div style='transform: translate(0, 27%); margin-left: 9px; user-select: none'>RUN &#x25BA;</div>
+                    </div>
+
+                    <div id='resetBtn' onclick='' class="box1" style='margin-left: 5px; width: 75px'>
+                        <div style='transform: translate(0, 27%); user-select: none'>RESET</div>
+                    </div>
+                </div>
+
+                <!-- editor -->
+                <a id='clearBtn' onclick='clearEditor()' style='position: absolute; transform: translate(900%, 0); cursor: pointer; display: none;' class="close-icon"></a>
+                <div style='display: flex;'>
+                    <div id='editor'>
+                        <div id='nums'>
+                            <div id='n0' class='lineNum'>0</div>
+                        </div>
+
+                        <div id='lines'>
+                            <div id='line0' class='line' onclick='focusLine(this.id)'>
+                                <span id='l0' class='in try' onfocus='selectLine(this.id)' onblur="unselectLine(this.id)" onkeydown="typeLine(event, this.id)" data-placeholder="Not sure what to do? try an example below" contenteditable></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <textarea id='interpret' spellcheck="false" readonly></textarea>
+                </div>
+
+                <div id='buttonsContainer'>
+                    
+
+                    <!-- autoplay option -->
+                    <div style='display: flex; font-family: "helvetica"; width: 40px; margin-top: 7px;'>
+                        <p style='color: white; margin: 0 0; font-size: 12px; margin-right: 2px'>AUTOPLAY</p>
+                        <div class="autoplaycontainer">
+                            <label class="switch" for="checkbox">
+                                <input type="checkbox" id="checkbox" onclick='toggleAutoplay(this.checked)' checked />
+                                <div class="slider round"></div>
+                            </label>
+                        </div><p class='clipMsg' style='float: left; color: red; opacity: 0; font-size: 12px; user-select: none;' id='clipPaused'>PAUSED</p>
+                    </div>
+
+                    <div style='display: flex; margin-top: -6px; margin-bottom: -6px'>
+                        <!-- instant mode -->
+                        <div style='display: flex; font-family: "helvetica"; margin-top: 7px;'>
+                            <p style='color: white; margin: 0 0; font-size: 12px; width: 100px'>INSTANT MODE</p>
+                            <div class="autoplaycontainer">
+                                <label class="switch" for="checkbox1">
+                                    <input type="checkbox" id="checkbox1" onclick='toggleInstant(this.checked)' />
+                                    <div class="slider round"></div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- speed slider -->
+                        <div style='display: flex; font-family: "helvetica"; width: 40px; margin-top: 7px; margin-left: 4px'>
+                            <p style='color: white; margin: 0 0; font-size: 12px;'>SPEED</p>
+                            <input id='speedSlider' style='cursor: pointer' oninput='setSpeed()' type="range" min="1" max="6" value="3">
+                        </div>
+                    </div>
+
+                    <!-- dark THEME -->
+                    <div style='display: flex; font-family: "helvetica"; margin-top: 9px;'>
+                        <p style='color: white; margin: 0 0; font-size: 12px; width: 80px'>DARK THEME</p>
+                        <div class="autoplaycontainer">
+                            <label class="switch" for="checkbox2">
+                                <input type="checkbox" id="checkbox2" onclick='toggleDark(this.checked)' checked/>
+                                <div class="slider round"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- right section of LMC -->
+            <div id='rightDiv'>
+                <div id='leftRam'>
+                    <div id='output' style='position: relative; z-index: 1'>
+                        <h3 style='color: #080A52'>OUTPUT</h3>
+                        <textarea id='outputText' readonly></textarea>
+                    </div>
+
+                    <div id='cpu' style='position: relative; z-index: 2'>
+                        <h3>CPU</h3>
+
+                        <div id='counterContainer' style='position: relative; z-index: 1'>
+                            <div class='data' id='counterdata' style='position: absolute; opacity: 0; background-color: red; z-index: 9999'><div id='counteroper' style='border: 1px solid black; background-color: grey; position: absolute; transform: translate(50%, 50%); opacity: 0; width: 20px; height: 20px;'></div></div>
+
+                            <div class='data' id='registersdata' style='position: absolute; opacity: 0; background-color: red; z-index: 9999'></div>
+
+                            <input id='counter' value='00' onKeyPress="if(this.value.length==2) return false;" type = "number" maxlength = "6"></input>
+                            <h4>PROGRAM COUNTER</h4>
+                        </div>
+
+                        <div id='registers'>
+                            <div>
+                                <input id='instructionreg' onKeyPress="if(this.value.length==1) return false;" type = "number" maxlength = "6" value='0'></input>
+                                <h4>INSTRUCTION REGISTER</h4>
+                            </div>
+                            <div>
+                                <h4>ADDRESS REGISTER</h4>
+                                <input id='addressreg' onKeyPress="if(this.value.length==2) return false;" type = "number" maxlength = "6" value='00'></input>
+                                <div class='data' id='ARdata' style='position: absolute; opacity: 0; background-color: red; z-index: 9999'></div>
+                            </div>
+                        </div>
+
+                        <div id='accumulatorContainer'>
+                            <h4>ACCUMULATOR</h4>
+
+                            <div class='data' id='ACCOperdata' style='position: absolute; opacity: 0; background-color: red; z-index: 9999'><div style='border: 1px solid black; background-color: grey; position: absolute; transform: translate(75%, 10%); opacity: 0; width: 20px; height: 20px;'></div></div>
+                            
+                            <div class='data' id='ACCdata' style='position: absolute; opacity: 0; background-color: red; z-index: 9999'></div>
+
+                            <input id='accumulator' onKeyPress="if(this.value.length==4) return false;" type = "number" maxlength = "6" value='000'></input>
+                        </div>
+                    </div>
+
+                    <div id='alu' style='position: relative; z-index: 1'>
+                        <h4>ALU</h4>
+                    </div>
+
+                    <div id='inputPrompt' style='position: relative; z-index: 3'>
+                        <h3 style='color: black'>INPUT</h3>
+                        <div class='data' id='inputdata' style='position: absolute; opacity: 0; background-color: blue;'></div>
+                        <input onKeyPress="if(this.value.length==3) return false;" type = "number" maxlength = "6" id='userInput' autocomplete="false" spellcheck="false" data-lpignore="true" readonly></input>
+                    </div>
+                </div>
+    
+                <div id='ram' style='position: relative; z-index: 1'>
+                    <div style='position: relative; height: 0'>
+                        <h2 style='position: absolute; transform: translate(0, -160%); color: #FFE77AFF; font-family: "Comic Sans MS", sans-serif;'>RAM</h2>
+                    </div>
+
+                    <div id='0' class='memory'>
+                        <h3>0</h3>
+                        <input onKeyPress="if(this.value.length==3) return false;" type = "number" maxlength = "6" value="000"></input>
+                    </div>
+                </div>
+
+                <div style='width: 0; position: relative; z-index: 0'>
+                    <img style='position: absolute; transform: translate(-85%, 6%);' src='images/LMC.gif' />
+                </div>
+
+                <div id='userInfo' style='position: absolute;'>
+                    <img style='height: 70px; width: auto' src='images/clip.png' />
+                    <div style='display: flex;'>
+                        <div id='triangle'></div>
+                        <div id='clipMsgBox'>
+                            <p class='clipMsg' id='clipMsg'>Click COMPILE when your assembley code is complete.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- console -->
+        <div id='console'>
+            <div style="display: flex; height: 100%; font-family: 'Courier New', Courier, monospace">
+                <div id='consoleContainer'>
+                    <p id='consoletxt' style='overflow: hidden; white-space: nowrap;'>Little Man Computer - JavaScript V1.3<br>Type /help for console features.</p>
+                    
+                    <!-- console input -->
+                    <div id="consoleInputArea">
+                        <span>>&nbsp;</span>
+                        <div id="cursor"></div>
+                    </div>
+                    <input id='consoleInput' type="text" name="command" value="" />
+                </div>
+
+                <div class="resizer" id="dragMe" ondblclick="toggleConsole()"><div id='bar'>&vert;</div></div>
+                <div style=""></div>
+            </div>
+        </div>
+      </div>
+      
+      <div id='container2'>
+      <!-- notice -->
+      <div id='notice' style='color: #a32d53; margin-left: 30px; display: none'>
+        <h1>NOTICE:</h1>
+        <ul>
+        </ul>
+      </div>
+
+      <!-- examples -->
+      <div id='examples' style='z-index: 9999; margin-top: 50px'>
+          
+          <h1>Examples</h1>
+          (Clicking an example will replace any code inside the assembly code box)
+          <ul style='font-size: 20px;'>
+            <li><a id='add' onclick="example(this.id)" href='javascript:;container'>Adding two numbers</a></li>
+            <li><a id='sub' onclick="example(this.id)" href='javascript:;container'>Subtracting a number</a></li>
+            <li><a id='mul' onclick="example(this.id)" href='javascript:;container'>Multiplying two numbers</a></li>
+            <li><a id='div' onclick="example(this.id)" href='javascript:;container'>Dividing a number</a></li>
+          </ul>
+      </div>
+
+      <!-- LMC instruction key -->
+      <div id='key'>
+        <h1>LMC Instruction Set</h1>
+        The LMC has nine instructions.  Each instruction has an assembly mnemonic that is equivalent to a three-digit (decimal) instruction.  In this numerical instruction, the first digit usually represents the instruction, and the second and third digits usually represent a mailbox address.
+        <br>
+        <h2>LOAD</h2>
+        mnemonic - LDA<br>
+        numerical/machine code - 5<br>
+        Load the contents of the given mailbox onto the accumulator (calculator).  Note: the contents of the mailbox are not changed.
+        <br>
+        <h2>STORE</h2>
+        mnemonic - STA<br>
+        numerical/machine code - 3<br>
+        Store the contents of the accumulator (calculator) to the mailbox of the given address.  Note: the contents of the accumulator are not changed.
+        <br>
+        <h2>ADD</h2>
+        mnemonic - ADD<br>
+        numerical/machine code - 1<br>
+        Add the contents of the given mailbox onto the accumulator (calculator).  Note: the contents of the mailbox are not changed, and the actions of the accumulator are not defined for add instructions that cause sums larger than 3 digits.
+        <br>
+        <h2>SUBTRACT</h2>
+        mnemonic - SUB<br>
+        numerical/machine code - 2<br>
+        Subtract the contents of the given mailbox from the accumulator (calculator).  Note: the contents of the mailbox are not changed, and the actions of the accumulator are not defined for subtract instructions that cause negative results -- however, a negative flag will be set so that BRP can be used properly (see below).
+        <br>
+        <h2>INPUT</h2>
+        mnemonic - INP<br>
+        numerical/machine code - 901<br>
+        Copy the value from the "in box" onto the accumulator (calculator).
+        <br>
+        <h2>OUTPUT</h2>
+        mnemonic - OUT<br>
+        numerical/machine code - 902<br>
+        Copy the value from the accumulator (calculator) to the "out box".  Note: the contents of the accumulator are not changed.
+        <br>
+        <h2>END</h2>
+        mnemonic - HLT<br>
+        numerical/machine code - 000<br>
+        Causes the Little Man Computer to stop executing your program.
+        <br>
+        <h2>BRANCH IF ZERO</h2>
+        mnemonic - BRZ<br>
+        numerical/machine code - 7<br>
+        If the contents of the accumulator (calculator) are 000, the PC (program counter) will be set to the given address.  Note: since the program is stored in memory, data and program instructions all have the same address/location format.
+        <br>
+        <h2>BRANCH IF ZERO OR POSITIVE</h2>
+        mnemonic - BRP<br>
+        numerical/machine code - 8<br>
+        If the contents of the accumulator (calculator) are 000 or positive (i.e. the negative flag is not set), the PC (program counter) will be set to the given address.  Note: since the program is stored in memory, data and program instructions all have the same address/location format.
+        <br>
+        <h2>BRANCH ALWAYS</h2>
+        mnemonic - BRA<br>
+        numerical/machine code - 6<br>
+        Set the contents of the accumulator (calculator) to the given address.  Note: since the program is stored in memory, data and program instructions all have the same address/location format.
+        <br>
+        <h2>DATA LOCATION</h2>
+        mnemonic - DAT<br>
+        numerical/machine code - (the data)<br>
+        When compiled, a program converts each instruction into a three-digit code.  These codes are placed in sequential mailboxes.  Instead of a program component, this instruction will reserve the next mailbox for data storage.
+        <div style='margin-top: 50px; margin-bottom: 50px;'>
+            <h2 style='text-align: center;'>Little Man Computer (LMC) - CPU emulator in JavaScript</h2>
+            Made by Rafael Asmoucha (rasmoucha@gmail.com)<br>
+            This project was heavily inspired by <a href='https://peterhigginson.co.uk/lmc/'>https://peterhigginson.co.uk/lmc/</a>, please go check it out!
+        </div>
+      </div>
+      </div>
+
+      <script src="js/script.js"></script>
+      <script src="js/editor.js"></script>
+      <script src="js/console.js"></script>
+      <script src="js/program.js"></script>
+      <script src="js/ram.js"></script>
+      <script src="js/control.js"></script>
+      <!--<script src="https://analytics.rafis.work/analytics"></script>-->
+  </body>
+</html>
